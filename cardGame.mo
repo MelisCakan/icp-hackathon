@@ -16,7 +16,9 @@ actor{
   };
 
   public type PlayerId = Nat32;
+
   private stable var next: PlayerId = 0;
+  private stable var players: List.List<Player> = List.nil<Player>();
   
   public type Card = {
     name: Text;
@@ -75,30 +77,66 @@ actor{
   };
   cards := List.push<Card>(card6, cards);
   
-  public func getRandomCardFromDeck(cards: [Card]): async Card {   
-    let random = Random.Finite(await Random.blob());
-    let seed : Blob = "\0\1\2\3\4\5";
-    let seedRandom = Random.Finite(seed);
-    return cards[seedRandom]; // Kartı döndür
+  func getRandomCard(f : Random.Finite ) : ? Nat {
+    let max = 6;
+    do ? {
+      var n = max - 1 : Nat;
+      var k = 0;
+      while (n != 0) {
+        k *= 2;
+        k += bit(f.coin()!);
+        n /= 2;
+      };
+      if (k < max) k + 1 else getRandomCard(f, max)!;
+    };
   };
 
   public func createPlayer(newplayer: Player) : async Player {
     let PlayerId = next;
     next += 1;
-    let randCard = await getRandomCardFromDeck(cards);
-    newplayer.cardList.push<Card>(0, randCard);
-
-    randCard = await getRandomCardFromDeck(cards);
-    newplayer.cardList.push<Card>(1, randCard);
-
-    randCard = await getRandomCardFromDeck(cards);
-    newplayer.cardList.push<Card>(2, randCard);
-
+    players := List.push<Player>(newplayer, players);
     return PlayerId;
   };
 
+  public func addCards(newcard: Card) {
+    // Rastgele bir kaynak oluşturuyoruz
+    let randomSource = Random.Finite.init([true, false, true, true, false, true]);
+
+    for (player in List.toArray(players).vals()) {
+        var count = 0;
+        while (count != 4) {
+            let cardIndex = getRandomCard(randomSource); // Rastgele bir kart seçiliyor
+            switch (cardIndex) {
+                case (?index) {
+                    Debug.print("Player " # debug_show(player) # " got card: " # debug_show(index));
+                    count += 1; // 4 karta ulaşmak için sayacı artır
+                };
+                case null {
+                    Debug.print("Random source exhausted, skipping...");
+                };
+            };
+        };
+    };
+};
+
   public func play(currentPlayer: Player, otherPlayer: Player, playedCard: Card) : async Player {
-    
+    currentPlayer.heal += playedCard.heal;
+    otherPlayer.heal -= playedCard.damage;
+    currentPlayer.mana -= playedCard.mana;
   };
 
+  public func checkGameOver(firstPlayer: Player, secondPlayer: Player) {
+    if (firstPlayer.heal <= 0) {
+      Debug.print(debug_show ("Player 2 won!"));
+    };
+    if (secondPlayer.heal <= 0) {
+      Debug.print(debug_show ("Player 1 won!"));
+    };
+    if (firstPlayer.heal, secondPlayer.heal <= 0) {
+      Debug.print(debug_show ("Draw!"));
+    };
+    else {
+      Debug.print(debug_show ("Game has not ended yet!"));
+    };
+  };
 };
