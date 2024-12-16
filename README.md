@@ -11,13 +11,12 @@ Who are you:
 
 Project details:
 - 1v1 Card Game
-A strategic 1v1 card game built on the Internet Computer using Motoko for the backend smart contract and a user-friendly front-end interface. Players battle using cards with healing and damaging powers, aiming to outlast their opponent!
+A strategic 1v1 card game built on the Internet Computer using Motoko for the backend smart contract. Players battle using cards with healing and damaging powers, aiming to outlast their opponent!
 
 Features
 Strategic 1v1 card gameplay with random card draws.
 Turn-based action with hidden card mechanics.
 Motoko-powered backend smart contract for game logic.
-Front-end for seamless interaction with the game.
 
 Vision:
 - Our vision is to create an engaging and strategic 1v1 card game that combines simplicity and depth, offering players a thrilling battle of wits and unpredictability. This game aims to provide a compact yet immersive experience where each decision matters, fostering strategic thinking and adaptability.
